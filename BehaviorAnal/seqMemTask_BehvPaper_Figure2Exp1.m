@@ -1,6 +1,6 @@
 % seqMemTask_BehvPaper_Figure2.m
 % revision by XR @ Dec 21 2025
-% simplified based on seqMemTask_v1_anal_summary.m
+% ****** simplified based on seqMemTask_v1_anal_summary.m ******
 % Plotting script for Figure 2 in the Behavioral Manuscript 1
 
 clear
@@ -823,7 +823,7 @@ for iGrp = 1 : nGroup %% younger and older adults
     %%% glmm
     resp_glmm_group = [resp_glmm_group; resp_glmm_subj];
 
-    % ----proportions and total counts----
+    % ----binding evidence----
     binds_conPctr_group{1, iGrp} = binds_conPctr_marg_subj;
     binds_conPctr_group{2, iGrp} = binds_conPctr_join_subj;
 
@@ -870,7 +870,7 @@ for iGrp = 1 : nGroup %% younger and older adults
         binds_conPctr_marg_subj(:, 3, 2) - binds_conPctr_marg_subj(:, 4, 2)], 2);
     allMeas_inOne_group{iGrp} = allMeas_inOne;
 end
-%% save data for Figure 2A and 2B in the FlexibleBinding paper
+%% save data for Figure 2A, 2B, 2D and 2GHI in the FlexibleBinding paper
 FBdata_folder = [bhvDataDir, '/FlexibleBindingPaper-Data/']; % flexible binding data folder
 save([FBdata_folder, 'Fig2A_acc_blc_group.mat'], 'acc_blc_group');
 save([FBdata_folder, 'Fig2B_acc_group.mat'], 'acc_group');
