@@ -40,6 +40,11 @@ yCir   = RChunk * sin(angCir) + centerY;
 expList = {'interleaved'};
 nGroup  = 2; %% younger and older adults
 
+%% Figure 2C: Interleaved condiiton in Experiment 2
+%%% seqMemTask_v2_anal_early_late_window_Binding.m
+%%% ---------Figure 2C in the behavioral manuscript: Memory gradient only for the Interleaved condition---------
+
+
 %% ---------- Figure 2E in Experiment 2 (replication in Experiment 1); transition accurcy ----------
 
 %% The binding relevant data was originally saved in seqMemTask_v2_anal_early_late_window_Binding.m
