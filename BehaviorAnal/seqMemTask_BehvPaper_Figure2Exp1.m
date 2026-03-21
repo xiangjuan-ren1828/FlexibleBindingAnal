@@ -940,7 +940,6 @@ end
 FBdata_folder = [bhvDataDir, '/FlexibleBindingPaper-Data/']; % flexible binding data folder
 save([FBdata_folder, 'Fig2E_transAcc_plot_mjAvg_group.mat'], 'transAcc_plot_mjAvg_group');
 
-
 %% color settings
 colorSets = [0.98, 0.72, 0.69; ...
              0.97, 0.85, 0.67; ...

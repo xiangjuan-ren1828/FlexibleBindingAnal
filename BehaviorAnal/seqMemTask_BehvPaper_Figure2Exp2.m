@@ -1110,12 +1110,11 @@ colorGrp = [230, 85, 13; ...
             116, 196, 118; ...
             186, 228, 179] ./ 255; %% recons post-test: 3 groups
 
-%% Figure 2C: Interleaved condiiton in Experiment 2
+%% Figure 2C: Interleaved condition in Experiment 2
 %%% seqMemTask_v2_anal_early_late_window_Binding.m
 %%% ---------Figure 2C in the behavioral manuscript: Memory gradient only for the Interleaved condition---------
 nConds_comp = 2; % 1) three-retrieval trials; 2) only the trials in the first reporting window
 acc_group_comp = cell(2, nConds_comp);
-acc_recon_pred = cell(2, nConds_comp);
 for iA = 1 : 2 % YA and OA group
     if iA == 1
         groupName = 'younger';
@@ -1206,6 +1205,45 @@ elseif figKey == 1
     set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', {'', '', ''});
 end
 box off;
+
+%% Figure 2C (right panel): age-difference for each retrieval in Experiment 2 (replication of Figure 2B right panel)
+% two datasets: 1) all trials; 2) only three-retrieval trials
+acc_change_comp = nan(size(acc_group_comp{2, 1}, 1), 3); % content, position and reconstruction
+for iC = 1 : 3 % content, position and both-pre
+    acc_change_comp(:, iC) = (acc_group_comp{2, 1}(:, iC) - nanmean(acc_group_comp{1, 1}(:, iC))) ./ nanmean(acc_group_comp{1, 1}(:, iC));
+end
+color_iGrp = 0.5 * colorGrp([1, 4, 7], :) + 0.5 * [1, 1, 1];
+figKey = 1;
+if figKey == 0
+    errLineWid = 3;
+    refLineWid = 1;
+elseif figKey == 1
+    errLineWid = 2;
+    refLineWid = 0.5;
+end
+figure('Position', [100 100 80 150]), clf;
+[acc_avg, acc_sem] = Mean_and_Se(acc_change_comp, 1);
+for iC = 1 : 3 % content, position and both-pre
+    errorbar(iC, acc_avg(iC), acc_sem(iC), 'Color', [0, 0, 0], 'LineStyle', '-', 'LineWidth', errLineWid); hold on;
+    plot(iC, acc_avg(iC), 'Marker', 'o', 'MarkerSize', 8, 'MarkerFaceColor', color_iGrp(iC, :), 'MarkerEdgeColor', [0, 0, 0], 'LineStyle', '-', 'LineWidth', refLineWid); hold on;
+end
+xlim([0.5, 3.5]);
+ylim([-0.6, 0]);
+if figKey == 0
+    % ------For presentation------
+    set(gca, 'LineWidth', 2);
+    set(gca, 'FontSize', 15, 'FontWeight', 'bold', 'FontName', 'Arial');
+    set(gca, 'XTick', '', 'XTickLabel', '');
+    %set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', 0 : 0.5 : 1); 
+elseif figKey == 1
+    % ------For Adobe Illustrator------
+    set(gca, 'LineWidth', 0.8);
+    set(gca, 'FontSize', 10, 'FontWeight', 'bold', 'FontName', 'Arial');
+    set(gca, 'XTick', '', 'XTickLabel', '');
+    set(gca, 'YTick', -0.6 : 0.2 : 0, 'YTickLabel', {'', '', ''}); 
+end
+box off;
+
 
 %% ---------- Figure 2D in Experiment 2 (replication in Experiment 1); lure effect ----------
 figKey = 1;  % 0: figure for presentation; 1: figure for AI.
@@ -1517,3 +1555,5 @@ end
 %%
 disp('^^^^^^^^^^ Bonferroni-Holm corrected p: only the Figure 2H ^^^^^^^^^^ ')
 [cor_p, h] = bonf_holm(p_values_allConds(5 : end), 0.05)
+
+
