@@ -26,28 +26,35 @@ N_Exp12 = [39, 27; ...
            24, 23];
 
 %% Experiment 1: data for Figure 2D, 2E and 2GHI
-% load([FBdata_folder, 'Fig2A_acc_blc_group.mat'], 'acc_blc_group');
-% load([FBdata_folder, 'Fig2B_acc_group.mat'], 'acc_group');
-FA_lure_group_Exp1 = load([FBdata_folder, 'Fig2D_FA_lure_group.mat'], 'FA_lure_group');
+% load([FBdata_folder, 'Fig2A_acc_blc_group_Exp1.mat'], 'acc_blc_group');
+% load([FBdata_folder, 'Fig2B_acc_group_Exp1.mat'], 'acc_group');
+FA_lure_group_Exp1 = load([FBdata_folder, 'Fig2D_FA_lure_group_Exp1.mat'], 'FA_lure_group');
 FA_lure_group_Exp1 = FA_lure_group_Exp1.FA_lure_group; % cell(1, 2)
 
-transAcc_plot_mjAvg_group_Exp1 = load([FBdata_folder, 'Fig2E_transAcc_plot_mjAvg_group.mat'], 'transAcc_plot_mjAvg_group');
+transAcc_plot_group_Exp1 = load([FBdata_folder, 'Fig2E_transAcc_plot_group_Exp1.mat'], 'transAcc_plot_group'); % transAcc_plot_group = cell(2, nGroup); % 2: marginal and joint
+transAcc_plot_group_Exp1 = transAcc_plot_group_Exp1.transAcc_plot_group;
+
+transAcc_plot_mjAvg_group_Exp1 = load([FBdata_folder, 'Fig2E_transAcc_plot_mjAvg_group_Exp1.mat'], 'transAcc_plot_mjAvg_group');
 transAcc_plot_mjAvg_group_Exp1 = transAcc_plot_mjAvg_group_Exp1.transAcc_plot_mjAvg_group;
 
-binds_conPctr_group_Exp1 = load([FBdata_folder, 'Fig2GHI_binds_conPctr_group.mat'], 'binds_conPctr_group');
+binds_conPctr_group_Exp1 = load([FBdata_folder, 'Fig2GHI_binds_conPctr_group_Exp1.mat'], 'binds_conPctr_group');
 binds_conPctr_group_Exp1 = binds_conPctr_group_Exp1.binds_conPctr_group;
 
 %% Experiment 2: data for Figure 2D, 2E and 2GHI
-% save([FBdata_folder, 'Fig2C_acc_group.mat'], 'acc_group');
-% save([FBdata_folder, 'Fig2C_acc_subj_orderUP_group.mat'], 'acc_subj_orderUP_group');
-FA_lure_group_Exp2 = load([FBdata_folder, 'Fig2D_Exp2_FA_lure_group.mat'], 'FA_lure_group');
+% load([FBdata_folder, 'Fig2C_acc_group_Exp2.mat'], 'acc_group');
+% load([FBdata_folder, 'Fig2C_acc_subj_orderUP_group_Exp2.mat'], 'acc_subj_orderUP_group');
+FA_lure_group_Exp2 = load([FBdata_folder, 'Fig2D_FA_lure_group_Exp2.mat'], 'FA_lure_group');
 FA_lure_group_Exp2 = FA_lure_group_Exp2.FA_lure_group;
 
-transAcc_plot_mjAvg_group_Exp2 = load([FBdata_folder, 'Fig2E_Exp2_transAcc_plot_mjAvg_group.mat'], 'transAcc_plot_mjAvg_group');
+transAcc_plot_group_Exp2 = load([FBdata_folder, 'Fig2E_transAcc_plot_group_Exp2.mat'], 'transAcc_plot_group'); % transAcc_plot_group = cell(2, nGroup); % 2: marginal and joint
+transAcc_plot_group_Exp2 = transAcc_plot_group_Exp2.transAcc_plot_group;
+
+transAcc_plot_mjAvg_group_Exp2 = load([FBdata_folder, 'Fig2E_transAcc_plot_mjAvg_group_Exp2.mat'], 'transAcc_plot_mjAvg_group');
 transAcc_plot_mjAvg_group_Exp2 = transAcc_plot_mjAvg_group_Exp2.transAcc_plot_mjAvg_group;
 
-binds_conPctr_group_Exp2 = load([FBdata_folder, 'Fig2GHI_Exp2_binds_conPctr_group.mat'], 'binds_conPctr_group');
+binds_conPctr_group_Exp2 = load([FBdata_folder, 'Fig2GHI_binds_conPctr_group_Exp2.mat'], 'binds_conPctr_group');
 binds_conPctr_group_Exp2 = binds_conPctr_group_Exp2.binds_conPctr_group;
+
 
 %% Integrating data from Exp1 and Exp2
 nGroup = 2;
@@ -61,14 +68,230 @@ transAcc_plot_mjAvg_group_Exp12       = cell(1, nGroup);
 transAcc_plot_mjAvg_group_Exp12{1, 1} = [transAcc_plot_mjAvg_group_Exp1{1, 1}; transAcc_plot_mjAvg_group_Exp2{1, 1}];
 transAcc_plot_mjAvg_group_Exp12{1, 2} = [transAcc_plot_mjAvg_group_Exp1{1, 2}; transAcc_plot_mjAvg_group_Exp2{1, 2}];
 
+% ------ Figure 2E: transition accuracy (statistics) ------
+transAcc_plot_group_Exp12 = cell(2, nGroup); % 2: marginal and joint
+% ------ YA ------
+transAcc_plot_group_Exp12{1, 1} = [transAcc_plot_group_Exp1{1, 1}; transAcc_plot_group_Exp2{1, 1}];
+transAcc_plot_group_Exp12{2, 1} = [transAcc_plot_group_Exp1{2, 1}; transAcc_plot_group_Exp2{2, 1}];
+
+% ------ OA ------
+transAcc_plot_group_Exp12{1, 2} = [transAcc_plot_group_Exp1{1, 2}; transAcc_plot_group_Exp2{1, 2}];
+transAcc_plot_group_Exp12{2, 2} = [transAcc_plot_group_Exp1{2, 2}; transAcc_plot_group_Exp2{2, 2}];
+
 % ------ Figure 2GHI: binding accuracy related ------
 binds_conPctr_group_Exp12       = cell(2, nGroup);
-% ------ OA ------
+% ------ YA ------
 binds_conPctr_group_Exp12{1, 1} = [binds_conPctr_group_Exp1{1, 1}; binds_conPctr_group_Exp2{1, 1}];
 binds_conPctr_group_Exp12{2, 1} = [binds_conPctr_group_Exp1{2, 1}; binds_conPctr_group_Exp2{2, 1}];
-% ------ YA ------
+% ------ OA ------
 binds_conPctr_group_Exp12{1, 2} = [binds_conPctr_group_Exp1{1, 2}; binds_conPctr_group_Exp2{1, 2}];
 binds_conPctr_group_Exp12{2, 2} = [binds_conPctr_group_Exp1{2, 2}; binds_conPctr_group_Exp2{2, 2}];
+
+
+%% Figure 2D statistics
+% merge the data across Exp1 and Exp2
+% based on the script in seqMemTask_v1_lureEffect.m or seqMemTask_v2_lureEffect.m
+% added by XR @ Dec 4th 2025
+% variables: item vs. location, partial vs. full retrieval, YA vs. OA
+% FA_lure_subj   = nan(subLen, 2, 2); % first 2: item and location; second 2: partial and full retrieval
+% ---------- partial retrieval ----------
+% FA_lure_subj(iSub, 1, 1) = sum(conLure) / nEpi;
+% FA_lure_subj(iSub, 2, 1) = sum(locLure) / nEpi;
+% 
+% % ---------- full retrieval ----------
+% FA_lure_subj(iSub, 1, 2) = sum(bothLure(:, 1)) / nEpi;
+% FA_lure_subj(iSub, 2, 2) = sum(bothLure(:, 2)) / nEpi;
+
+FA_lure_overall_YAOA = []; 
+for iGrp = 1 : nGroup % YA and OA
+    if iGrp == 1
+        disp('------YA------')
+    elseif iGrp == 2
+        disp('------OA------')
+    end
+
+    FA_lure_iGrp = FA_lure_group_Exp12{iGrp};
+
+    for ij = 1 : 2 % marginal and reconstruction
+        FA_lure_ij = FA_lure_iGrp(:, :, ij);
+
+        %% ------ data for the LMM test ------
+        for iCp = 1 : 2 % item and location
+            %%% ----------FA rate----------
+            FAlure_ij_iCp = FA_lure_ij(:, iCp);
+
+            subLen_tmp = size(FAlure_ij_iCp, 1); % subLen
+
+            %%% ----------Label age groups: 0-YA, 1-OA----------
+            groupType_col = repmat((iGrp - 1), [subLen_tmp, 1]);
+
+            %%% ----------Label report types: 0-marginal report, 1-reconstruction report----------
+            reportType_col = repmat((ij - 1), [subLen_tmp, 1]);
+
+            %%% ----------Item or Location sequence or dimension----------
+            dimType_col = repmat((iCp - 1), [subLen_tmp, 1]);
+
+            %%% ----------Label participant index----------
+            subj_col = (1 : 1 : subLen_tmp)' - 1;
+
+            %%% ----------Concatenate the transition calculation across loops----------
+            FA_lure_temp = [];
+            FA_lure_temp = [groupType_col, subj_col, reportType_col, dimType_col, FAlure_ij_iCp];
+            FA_lure_overall_YAOA = [FA_lure_overall_YAOA; FA_lure_temp];
+        end
+    end
+end
+%%% save the FA_lure_group.mat for subsequent LMM analysis
+save([FBdata_folder, 'Fig2D_FA_lure_overall_YAOA_stats_Exp12.mat'], 'FA_lure_overall_YAOA');
+
+
+%% Figure 2E statistics
+%%% ------Reorganize the transAcc_plot_group.mat in order to run the statistical analysis------
+% ----transition evidence----
+% transAcc_plot_group       = cell(2, nGroup); % 2: marginal and joint
+% transAcc_plot = nan(size(transAcc_count_ij, 1), 4); % 4: 1-2, accuracy for item transition; 3-4, accuracy for location transition
+transAcc_overall_group = []; % ****** For Figure 2E and its SI ******
+for iGrp = 1 : nGroup % YA and OA
+    if iGrp == 1
+        disp('------YA------')
+    elseif iGrp == 2
+        disp('------OA------')
+    end
+    for ij = 1 : 2 % marginal and reconstruction
+        transAcc_ij = transAcc_plot_group_Exp12{ij, iGrp};
+
+        %% ------ data for the LMM test ------
+        for iCp = 1 : 2 % item and location
+            iCp_idx = (iCp - 1) * 2 + 1 : iCp * 2;
+            transAcc_ij_iCp = transAcc_ij(:, iCp_idx);
+            subLen_tmp  = size(transAcc_ij_iCp, 1); % subLen
+            condsNs_tmp = size(transAcc_ij_iCp, 2); % 2 columns: correct vs. incorrect
+
+            %%% ----------Label age groups: 0-YA, 1-OA----------
+            groupType_col = repmat((iGrp - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label report types: 0-marginal report, 1-reconstruction report----------
+            reportType_col = repmat((ij - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Item or Location sequence or dimension----------
+            transReportType_col = repmat((iCp - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label participant index----------
+            subj_col = repmat((1 : 1 : subLen_tmp)' - 1, 1, condsNs_tmp);
+            subj_col = reshape(subj_col, [subLen_tmp * condsNs_tmp, 1]);
+            
+            %%% ----------Label each column and then concatenate the 2 columns into one column ----------
+            % 1: (item | item = R) or (loc | loc = R) [R: correct response; W: incorrect response]
+            % 0: (item | item = W) or (loc | loc = W) 
+            transConds = nan(subLen_tmp, condsNs_tmp);
+            transConds(:, 1) = ones(subLen_tmp, 1);
+            transConds(:, 2) = zeros(subLen_tmp, 1);
+            transConds_col = reshape(transConds, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Transition accuracy----------
+            transAcc_ij_iCp_col = reshape(transAcc_ij_iCp, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Concatenate the transition calculation across loops----------
+            transAcc_cal_temp = [];
+            transAcc_cal_temp = [groupType_col, subj_col, reportType_col, transReportType_col, transConds_col, transAcc_ij_iCp_col];
+            transAcc_overall_group = [transAcc_overall_group; transAcc_cal_temp];
+
+        end
+    end
+end
+%%% ------save the above data for subsequent statistical tests------
+save([FBdata_folder, 'Fig2E_transAcc_overall_group_stats_Exp12.mat'], 'transAcc_overall_group');
+
+%% Figure2G and Figure 2HI statistics
+% Original script in seqMemTask_v1_anal_summary.m (Lines 2301-2390)
+% added by rxj @ Dec 30 2024
+binds_overall_group      = []; % ****** For Figure 2G ****** 
+binds_overall_diff_group = []; % ****** For Figure 2H and 2I****** 
+for iGrp = 1 : nGroup % YA and OA
+    if iGrp == 1
+        disp('------YA------')
+    elseif iGrp == 2
+        disp('------OA------')
+    end
+    for ij = 1 : 2 % marginal and reconstruction
+        binds_conPctr_group_ij = binds_conPctr_group_Exp12{ij, iGrp}(:, :, 1 : 2);
+        for iCp = 1 : 2 % (Con|Pos) and (Pos|Con)
+            %% ------ Data for Figure 2G ------
+            binds_Cp_subj = binds_conPctr_group_ij(:, :, iCp); % subLen * 4
+            subLen_tmp  = size(binds_Cp_subj, 1); % subLen
+            condsNs_tmp = size(binds_Cp_subj, 2); % 4 columns (or sub-conditions)
+
+            %%% ----------Label age groups: 0-YA, 1-OA----------
+            groupType_col = repmat((iGrp - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label report types: 0-marginal report, 1-reconstruction report----------
+            reportType_col = repmat((ij - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label binding directions: 0-(item | pos), 1-(pos | item)----------
+            bindsDirection_col = repmat((iCp - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label participant index----------
+            subj_col = repmat((1 : 1 : subLen_tmp)' - 1, 1, condsNs_tmp);
+            subj_col = reshape(subj_col, [subLen_tmp * condsNs_tmp, 1]);
+            
+            %%% ----------Label each column and then concatenate the 4 columns into one column ----------
+            % ------(item | pos)------
+            % 1: (item | item = R, pos = R), (item | item = W, pos = R) [R: correct response; W: incorrect response]
+            % 0: (item | item = R, pos = W), (item | item = W, pos = W)
+            % ------(pos | item)------
+            % 1: (pos | pos = R, item = R), (pos | pos = W, item = R)
+            % 0: (pos | pos = R, item = W), (pos | pos = W, item = W)
+            bindsCond = nan(subLen_tmp, condsNs_tmp);
+            bindsCond(:, [1, 3]) = ones(subLen_tmp, 2);
+            bindsCond(:, [2, 4]) = zeros(subLen_tmp, 2);
+            bindsCond_col = reshape(bindsCond, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Binds calculations----------
+            binds_Cp_subj_col = reshape(binds_Cp_subj, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Concatenate the binds calculation across loops----------
+            binds_cal_temp = [];
+            binds_cal_temp = [groupType_col, subj_col, reportType_col, bindsDirection_col, bindsCond_col, binds_Cp_subj_col];
+            binds_overall_group = [binds_overall_group; binds_cal_temp];
+
+            %% ------ Data for original Figure 2H and 2I ------
+            %%% ----------Calculate the differences----------
+            % !!!!!! make the cost and benefit the same direction !!!!!!
+            binds_Cp_subj_diff = [binds_Cp_subj(:, 1) - binds_Cp_subj(:, 2), binds_Cp_subj(:, 3) - binds_Cp_subj(:, 4)];
+            subLen_tmp  = size(binds_Cp_subj_diff, 1); % subLen
+            condsNs_tmp = size(binds_Cp_subj_diff, 2); % 2 columns: differences
+
+            %%% ----------Label age groups: 0-YA, 1-OA----------
+            groupType_col = repmat((iGrp - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label report types: 0-marginal report, 1-reconstruction report----------
+            reportType_col = repmat((ij - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label binding directions: 0-(item | pos), 1-(pos | item)----------
+            bindsDirection_col = repmat((iCp - 1), [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label participant index----------
+            subj_col = repmat((1 : 1 : subLen_tmp)' - 1, 1, condsNs_tmp);
+            subj_col = reshape(subj_col, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Label the cost and benefit condition----------
+            bindsCond = [zeros(subLen_tmp, 1), ones(subLen_tmp, 1)];
+            bindsCond_col = reshape(bindsCond, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Binds difference calculations----------
+            binds_Cp_subj_col = reshape(binds_Cp_subj_diff, [subLen_tmp * condsNs_tmp, 1]);
+
+            %%% ----------Concatenate the binds calculation across loops----------
+            binds_cal_diff_temp = [];
+            binds_cal_diff_temp = [groupType_col, subj_col, reportType_col, bindsDirection_col, bindsCond_col, binds_Cp_subj_col];
+            binds_overall_diff_group = [binds_overall_diff_group; binds_cal_diff_temp];
+
+        end
+    end
+end
+%%% ------save the above data for subsequent statistical tests------
+save([FBdata_folder, 'Fig2G_binds_overall_group_stats_Exp12.mat'], 'binds_overall_group');
+save([FBdata_folder, 'Fig2HI_binds_overall_diff_group_stats_Exp12.mat'], 'binds_overall_diff_group');
 
 %% color settings
 colorSets = [0.98, 0.72, 0.69; ...
