@@ -142,7 +142,7 @@ for iGrp = 1 : nGroup % YA and OA
     end
 end
 %%% save the FA_lure_group.mat for subsequent LMM analysis
-save([FBdata_folder, 'Fig2D_FA_lure_overall_YAOA_stats_Exp12.mat'], 'FA_lure_overall_YAOA');
+%save([FBdata_folder, 'Fig2D_FA_lure_overall_YAOA_stats_Exp12.mat'], 'FA_lure_overall_YAOA');
 
 
 %% Figure 2E statistics
@@ -200,18 +200,62 @@ for iGrp = 1 : nGroup % YA and OA
     end
 end
 %%% ------save the above data for subsequent statistical tests------
-save([FBdata_folder, 'Fig2E_transAcc_overall_group_stats_Exp12.mat'], 'transAcc_overall_group');
+%save([FBdata_folder, 'Fig2E_transAcc_overall_group_stats_Exp12.mat'], 'transAcc_overall_group');
 
 %% Figure2G and Figure 2HI statistics
 % Original script in seqMemTask_v1_anal_summary.m (Lines 2301-2390)
 % added by rxj @ Dec 30 2024
 binds_overall_group      = []; % ****** For Figure 2G ****** 
 binds_overall_diff_group = []; % ****** For Figure 2H and 2I****** 
+% ------- add a column of age as continuous variable ------
+ageList_YA_Exp1 = [22, 21, 25, ...
+                   21, 23, 20, ...
+                   23, 23, 21, ...
+                   29, 20, 20, ...
+                   29, 23, 23, ...
+                   21, 23, 23, ...
+                   21, 23, 22, ...
+                   22, 21, 25, ...
+                   23, 25, 22, ...
+                   24, 22, 21, ...
+                   22, 22, 22, ...
+                   30, 21, 20, ....
+                   23, 21, 25]; % 39 YA
+ageList_YA_Exp2 = [24, 22, 23, ...
+                   25, 24, 21, ...
+                   22, 23, 28, ...
+                   21, 22, 23, ...
+                   24, 30, 28, ...
+                   27, 22, 24, ...
+                   21, 20, 26, ...
+                   26, 33, 28]; % 24 YA
+ageList_OA_Exp1 = [81, 78, 76, ...
+                   76, 75, 77, ...
+                   79, 76, 78, ...
+                   85, 76, ...
+                   77, 78, 75, ...
+                   79, 75, 75, ... % the last participant this row: age unknown
+                   78, 82, 82, ...
+                   76, ...
+                   75, 79, 78, ...
+                   76, 75, 75]; % 27 OA
+ageList_OA_Exp2 = [67, 68, 67, ...
+                   69, 65, 66, ... % 5th participant: 64???
+                   73, 73, 70, ...
+                   65, 72, 72, ...
+                   65, 69, 67, ...
+                   67, 65, 68, ...
+                   70, 72, 65, ...
+                   67, 67];
+ageList_YA_Exp12 = [ageList_YA_Exp1, ageList_YA_Exp2];
+ageList_OA_Exp12 = [ageList_OA_Exp1, ageList_OA_Exp2];
 for iGrp = 1 : nGroup % YA and OA
     if iGrp == 1
         disp('------YA------')
+        ageList_iGrp = ageList_YA_Exp12;
     elseif iGrp == 2
         disp('------OA------')
+        ageList_iGrp = ageList_OA_Exp12;
     end
     for ij = 1 : 2 % marginal and reconstruction
         binds_conPctr_group_ij = binds_conPctr_group_Exp12{ij, iGrp}(:, :, 1 : 2);
@@ -249,9 +293,12 @@ for iGrp = 1 : nGroup % YA and OA
             %%% ----------Binds calculations----------
             binds_Cp_subj_col = reshape(binds_Cp_subj, [subLen_tmp * condsNs_tmp, 1]);
 
+            %%% ----------Age----------
+            age_subj_col = reshape(repmat(ageList_iGrp, condsNs_tmp, 1), [subLen_tmp * condsNs_tmp, 1]);
+
             %%% ----------Concatenate the binds calculation across loops----------
             binds_cal_temp = [];
-            binds_cal_temp = [groupType_col, subj_col, reportType_col, bindsDirection_col, bindsCond_col, binds_Cp_subj_col];
+            binds_cal_temp = [groupType_col, subj_col, reportType_col, bindsDirection_col, bindsCond_col, binds_Cp_subj_col, age_subj_col];
             binds_overall_group = [binds_overall_group; binds_cal_temp];
 
             %% ------ Data for original Figure 2H and 2I ------
@@ -281,17 +328,20 @@ for iGrp = 1 : nGroup % YA and OA
             %%% ----------Binds difference calculations----------
             binds_Cp_subj_col = reshape(binds_Cp_subj_diff, [subLen_tmp * condsNs_tmp, 1]);
 
+            %%% ----------Age----------
+            age_subj_col = reshape(repmat(ageList_iGrp, condsNs_tmp, 1), [subLen_tmp * condsNs_tmp, 1]);
+
             %%% ----------Concatenate the binds calculation across loops----------
             binds_cal_diff_temp = [];
-            binds_cal_diff_temp = [groupType_col, subj_col, reportType_col, bindsDirection_col, bindsCond_col, binds_Cp_subj_col];
+            binds_cal_diff_temp = [groupType_col, subj_col, reportType_col, bindsDirection_col, bindsCond_col, binds_Cp_subj_col, age_subj_col];
             binds_overall_diff_group = [binds_overall_diff_group; binds_cal_diff_temp];
 
         end
     end
 end
 %%% ------save the above data for subsequent statistical tests------
-save([FBdata_folder, 'Fig2G_binds_overall_group_stats_Exp12.mat'], 'binds_overall_group');
-save([FBdata_folder, 'Fig2HI_binds_overall_diff_group_stats_Exp12.mat'], 'binds_overall_diff_group');
+% save([FBdata_folder, 'Fig2G_binds_overall_group_stats_Exp12.mat'], 'binds_overall_group');
+% save([FBdata_folder, 'Fig2HI_binds_overall_diff_group_stats_Exp12.mat'], 'binds_overall_diff_group');
 
 %% color settings
 colorSets = [0.98, 0.72, 0.69; ...
@@ -375,6 +425,8 @@ elseif figKey == 1
 end
 barPos = [1, 1.7, 2.0, 2.7];
 condsWord = 'marginal+full';
+
+transAcc_drop_mjAvg_group_Exp12 = cell(1, nGroup);
 for iGrp = 1 : nGroup % YA and OA
     if iGrp == 1
         disp('------YA------')
@@ -439,7 +491,25 @@ for iGrp = 1 : nGroup % YA and OA
         set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', {'', '', ''});
     end
     box off;
+
+    %%% ------ calculate the drop percentage for both YA and OA ------
+    transAcc_plot_iGrp_temp_avg = transAcc_plot_mjAvg_group_Exp12{1, iGrp};
+    transAcc_drop_mjAvg_group_Exp12{1, iGrp} = [
+        (transAcc_plot_iGrp_temp_avg(:, 1) -  transAcc_plot_iGrp_temp_avg(:, 2)) ./ transAcc_plot_iGrp_temp_avg(:, 1), ...
+        (transAcc_plot_iGrp_temp_avg(:, 3) -  transAcc_plot_iGrp_temp_avg(:, 4)) ./ transAcc_plot_iGrp_temp_avg(:, 3)
+    ];
 end
+%% ------ Check the accuracy drop percentage ------
+for iGrp = 1 : nGroup % YA and OA
+    if iGrp == 1
+        disp('========== YA ==========');
+    elseif iGrp == 2
+        disp('========== OA ==========');
+    end
+    transAcc_drop_mjAvg_iGrp = transAcc_drop_mjAvg_group_Exp12{1, iGrp};
+    [transAcc_avg, transAcc_sem] = Mean_and_Se(transAcc_drop_mjAvg_iGrp)
+end
+
 
 %% ---------- Figure 2G: grand average of the binding score for the other dimension correct vs. incorrect in YA and OA ----------
 % added by XR @ Sep 16 2025
@@ -492,8 +562,8 @@ for iGrp = 1 : nGroup
         elseif jDm == 2
             colorFace_jDm = [1, 1, 1];
         end
-        errorbar(barPos_i(jDm), tAcc_avg(jDm), tAcc_sem(jDm), 'Color', 'k', 'LineStyle', 'none', 'LineWidth', errLineWid); hold on;
-        plot(barPos_i(jDm), tAcc_avg(jDm), 'Marker', 'o', 'MarkerSize', 4.5, 'MarkerEdgeColor', [0, 0, 0], 'MarkerFaceColor', colorFace_jDm, 'LineStyle', '-'); hold on;
+        errorbar(barPos_i(jDm), tAcc_avg(jDm), tAcc_sem(jDm), 'Color', 'k', 'LineStyle', 'none', 'LineWidth', 1); hold on; % errLineWid
+        plot(barPos_i(jDm), tAcc_avg(jDm), 'Marker', 'o', 'MarkerSize', 4, 'MarkerEdgeColor', [0, 0, 0], 'MarkerFaceColor', colorFace_jDm, 'LineStyle', '-'); hold on;
     end
     xlim([0.6, 2.1]);
     ylim([0, 1]);
@@ -525,7 +595,6 @@ for iGrp = 1 : nGroup % YA and OA
     bindScore_grandAvg_iGrp = bindScore_grandAvg{1, iGrp};
     [bindScore_avg, bindScore_sem] = Mean_and_Se(bindScore_grandAvg_iGrp)
 end
-
 
 %% Figure 2H and 2I: Experiment 1
 %%% SeqMemTask_v1_anal_summary.m
@@ -599,7 +668,7 @@ for iPlot = 1 : 2 % 1-partial vs. full; 2-preceeding correct (cost) vs. incorrec
         plot(barPos_i, tAcc_avg, 'Color', [0, 0, 0], 'LineStyle', '-', 'LineWidth', errLineWid); hold on;
         for jDm = 1 : 2 
             errorbar(barPos_i(jDm), tAcc_avg(jDm), tAcc_sem(jDm), 'Color', 'k', 'LineStyle', 'none', 'LineWidth', errLineWid); hold on;
-            plot(barPos_i(jDm), tAcc_avg(jDm), 'Marker', 'o', 'MarkerSize', 4.5, 'MarkerEdgeColor', [0, 0, 0], 'MarkerFaceColor', colorFace_jDm, 'LineStyle', '-'); hold on;
+            plot(barPos_i(jDm), tAcc_avg(jDm), 'Marker', 'o', 'MarkerSize', 4, 'MarkerEdgeColor', [0, 0, 0], 'MarkerFaceColor', colorFace_jDm, 'LineStyle', '-'); hold on;
             % -------- Statistical tests --------
             if jDm == 1
                 disp('------Partial or Correct------')
