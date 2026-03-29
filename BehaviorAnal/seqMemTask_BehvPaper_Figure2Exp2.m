@@ -659,8 +659,7 @@ for iGrp = 1 : nGroup %% younger and older adults
 
         %% calculate the decline percentage for each report and import to LMM to see if blocked design decline reduces
         % added by rxj @ 02/01/2024
-        % !!!!!!!!!! To make this consistent with Exp1, we should consider
-        % using the three-retrieval-trials !!!!!!!!!! 
+        % ------ (1) Memory drop based on all trials ------
         if iGrp == 2 % older group
             acc_trial_col = (squeeze(acc_trial_subj(iSub, [1, 2, 3], 1 : nEpi)))'; % nEpi * 3 meas
             % ----------calculate accuracy change relative to the younger----------
@@ -701,6 +700,16 @@ for iGrp = 1 : nGroup %% younger and older adults
             subj_Col  = repmat(iSub - 1, length(acc_col), 1);
             acc_change_conds_subj = [acc_change_conds_subj; group_Col, subj_Col, trlNo_col, meas_col, acc_col, trlCor_col, repOrd_col];
         end
+
+        % ------ (2) Memory drop based only on three-retrieval trials ------
+        % To make this consistent with Exp1, the memory drop analysis only
+        % uses the data from !!!!!! three-retrieval-trials !!!!!!
+
+   
+
+        % ------ (3) Memory drop based on the partial retrievals in the
+        % three-retrieval trials and full retrievals from  the
+        % retrieval-only trials ------
 
         %% ----------Transition accuracy and binding accuracy----------
         conTrue_threeRep  = conTrue_col(reconsOnly == 0);

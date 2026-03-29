@@ -533,8 +533,10 @@ bindScore_grandAvg = cell(1, nGroup);
 for iGrp = 1 : nGroup
     if iGrp == 1
         disp('------YA------')
+        ageList_iGrp = ageList_YA_Exp12;
     elseif iGrp == 2
         disp('------OA------')
+        ageList_iGrp = ageList_OA_Exp12;
     end
     %%% ------ Average across different dimension ------
     %%% ----Partial retrieval----
@@ -583,7 +585,11 @@ for iGrp = 1 : nGroup
     box off;
 
 end
-
+%%% ------ correlation between age and binding score ------
+ageCol = [ageList_YA_Exp12, ageList_OA_Exp12]';
+binds_score_YAOA = [bindScore_grandAvg{1, 1}; bindScore_grandAvg{1, 2}];
+val_idx = ~isnan(ageCol) & ~isnan(binds_score_YAOA);
+[r, p] = corr(ageCol, binds_score_YAOA);
 
 %% ------ Check the binding score ------
 for iGrp = 1 : nGroup % YA and OA
@@ -595,6 +601,9 @@ for iGrp = 1 : nGroup % YA and OA
     bindScore_grandAvg_iGrp = bindScore_grandAvg{1, iGrp};
     [bindScore_avg, bindScore_sem] = Mean_and_Se(bindScore_grandAvg_iGrp)
 end
+
+%% Correlation between age and binding score
+
 
 %% Figure 2H and 2I: Experiment 1
 %%% SeqMemTask_v1_anal_summary.m
