@@ -133,7 +133,9 @@ acc_trial_group = cell(1, nGroup);
 % ------accuracy for subsequent LMM analysis------
 acc_lmm_group          = [];
 choice_lmm_group       = [];
-acc_change_conds_group = [];
+acc_change_conds_group = [];           % memory drop: all trials together
+acc_change_conds_threeRetr_group = []; % memory drop: three-retrieval tests
+acc_change_conds_firstWin_group  = []; % memory drop: retrieval tests in the first reporting window
 
 % ------Binding related calculation------
 binds_conPctr_group = cell(2, nGroup); % 2: marginal and reconstruction reports
@@ -147,6 +149,9 @@ allMeas_inOne_group = cell(1, nGroup);
 
 % ----------False alarm from the lure stimuli----------
 FA_lure_group = cell(1, nGroup);
+
+% ----choice (per slot) for the within-trial measures and between-trial measure (the data is partly overlapped)----
+choice_within_between_trials_group = [];
 
 suffixWord = expId;
 for iGrp = 1 : nGroup %% younger and older adults
@@ -184,7 +189,9 @@ for iGrp = 1 : nGroup %% younger and older adults
     % ------accuracy for subsequent LMM analysis------
     acc_lmm_subj          = [];
     choice_lmm_subj       = []; % choice in each slot: 1-correct, 0-incorrect
-    acc_change_conds_subj = [];
+    acc_change_conds_subj = []; % memory drop: all trials together
+    acc_change_conds_threeRetr_subj = []; % memory drop: three-retrieval tests
+    acc_change_conds_firstWin_subj  = []; % memory drop: retrieval tests in the first reporting window
 
     % ------overall accuracy in 11 measurements------
     acc_dim_subj          = nan(subLen, 11); % post-test: (6) both; (7) content in both report; (8) position in both report; (9) both in recons-only; (10) content in recons-only; (11) position in recons-only
@@ -202,8 +209,10 @@ for iGrp = 1 : nGroup %% younger and older adults
     transAcc_count_join_secondHalf_subj = nan(subLen, 4, 2);
 
     % ------False alarm from the lure stimuli------
-    FA_lure_subj   = nan(subLen, 2, 2); % first 2: item and location; second 2: partial and full retrieval
+    FA_lure_subj = nan(subLen, 2, 2); % first 2: item and location; second 2: partial and full retrieval
 
+    % ----choice (per slot) for the within-trial measures and between-trial measure (the data is partly overlapped)----
+    choice_within_between_trials_subj = [];
     %%
     for iSub = 1 : subLen
         subjBv = subj_list{iSub, 1};
@@ -561,7 +570,7 @@ for iGrp = 1 : nGroup %% younger and older adults
         trialPerc_subj(iSub, 3) = length(find(rec_trials(1 : nEpi) == 1)) / nEpi; % length(find(rec_trials == 1)) / (nEpi + postTn);
         trialPerc_subj(iSub, 4) = length(find(rec_trials(nEpi + 1 : end) == 1)) / postTn;
 
-        %% save accuracy and choice for each subject for subsequent LMM and GLMM analysis
+        %% save accuracy and choice for each subject for subsequent LMM and GLMM analysis (not used in the statistical test)
         acc_trial_col = (squeeze(acc_trial_subj(iSub, [1, 2, 3], 1 : nEpi)))'; % nEpi * 3 meas
         acc_col    = []; %% accuracy
         trlCor_col = []; %% fully correct: 1-yes, 0-no
@@ -597,7 +606,7 @@ for iGrp = 1 : nGroup %% younger and older adults
         subj_Col  = repmat(iSub - 1, length(acc_col), 1);
         acc_lmm_subj = [acc_lmm_subj; group_Col, subj_Col, trlNo_col, meas_col, acc_col, trlCor_col, repOrd_col];
 
-        %%  1. overall choice for Figure 3B: save choice in each slot for every subject for subsequent GLMM analysis
+        %% 1. overall choice for Figure 2C: save choice in each slot for every subject for subsequent GLMM analysis
         % added by rxj @ April 20 2025: also labeling the reporting window
         %%% 2. choice according to chronological order (reporting window after the encoding stage): save choice in each slot for every subject for subsequent GLMM analysis
         % added by rxj @ 01/30/2024
@@ -629,8 +638,6 @@ for iGrp = 1 : nGroup %% younger and older adults
         meas_col   = []; %% 3 measures
         trlNo_col  = [];
         slotNo_col = []; % each sequence contains 5 slots
-        % added by rxj @ May 3rd 2025
-        slow_fast_label = []; % 0-fast; 1-slow
         for iM = 1 : 3 %% 3 measures: content, position and reconstruction
             trlNo_iM = repmat((1 : 1 : nEpi)', 1, nTrans);
             if iM == 1     % content report
@@ -657,10 +664,74 @@ for iGrp = 1 : nGroup %% younger and older adults
         subj_Col  = repmat(iSub - 1, length(choice_col), 1);
         choice_lmm_subj = [choice_lmm_subj; group_Col, subj_Col, trlNo_col, meas_col, slotNo_col, choice_col, repWin_col];
 
-        %% calculate the decline percentage for each report and import to LMM to see if blocked design decline reduces
+        %% 2. overall choice for Figure 2C: save choice in each slot for 3-retrieval tests and reconstruction-only trials for subsequent GLMM analysis
+        % Two parts of the data (overlapped in the partial retrieval):
+        % (1) data for three-retrieval test trials
+        % (2) data for reconstruction-only trials
+
+        %%% ------3-reports trials (same as Experiment 1)------
+        % ---- trial number ----
+        trial_no_total   = (1 : 1 : nEpi)';
+        trial_no_partial = trial_no_total(reconsOnly == 0);
+        nTrial_marg = length(find(reconsOnly == 0));
+        nTrial_marg_tmp = reshape(repmat(trial_no_partial', nTrans, 1), [nTrial_marg * nTrans, 1]);
+        nTrial_marg_col = repmat(nTrial_marg_tmp, 3, 1); % 3 retrievals: object/location/full in the three-retrieval tests
+
+        % correct (1) or incorrect (0) in each slot, each report and each trial
+        %          choice_con_iSub = nan(nEpi, 5); % only three-retrieval trials: 48 marginal report trials * 5 transitions
+        %          choice_pos_iSub = nan(nEpi, 5);
+        %          choice_both_iSub = nan(nEpi, 5);
+        choice_obj_partial = reshape(choice_con_iSub', [nTrial_marg * nTrans, 1]);
+        choice_loc_partial = reshape(choice_pos_iSub', [nTrial_marg * nTrans, 1]);
+        choice_rec_partial_tmp = choice_both_iSub(reconsOnly == 0, :); 
+        choice_rec_partial = reshape(choice_rec_partial_tmp', [nTrial_marg * nTrans, 1]);
+        choice_partial_col = [choice_obj_partial; choice_loc_partial; choice_rec_partial];
+
+        choice_within_trials_iSub = [zeros(length(choice_partial_col), 1), ... % label the 3-reports trials
+                                     [zeros(nTrial_marg*nTrans, 1); ones(nTrial_marg*nTrans, 1); repmat(2, nTrial_marg*nTrans, 1)], .... % 3 retrievals: object/location/full in the three-retrieval tests
+                                     nTrial_marg_col, choice_partial_col];
+
+        %%% ------reports in the 1st reporting window (for marginal reports, the data is partly overlapped with 3-report trials)------
+        trial_no_obj_firstWin = trial_no_total(reconsOnly == 0 & testOrd == 0);
+        trial_no_loc_firstWin = trial_no_total(reconsOnly == 0 & testOrd == 1);
+        trial_no_rec_firstWin = trial_no_total(reconsOnly == 1);
+        trial_no_obj_firstWin_col = reshape(repmat(trial_no_obj_firstWin', nTrans, 1), [length(trial_no_obj_firstWin) * nTrans, 1]);
+        trial_no_loc_firstWin_col = reshape(repmat(trial_no_loc_firstWin', nTrans, 1), [length(trial_no_loc_firstWin) * nTrans, 1]);
+        trial_no_rec_firstWin_col = reshape(repmat(trial_no_rec_firstWin', nTrans, 1), [length(trial_no_rec_firstWin) * nTrans, 1]);
+
+        trial_marginal = testOrd(reconsOnly == 0); % delete the reconstruction only trials
+        choice_obj_firstWin = choice_con_iSub(trial_marginal == 0, :); % object retrieval in the first reporting window
+        choice_loc_firstWin = choice_pos_iSub(trial_marginal == 1, :); % location retrieval in the first reporting window
+        choice_rec_firstWin = choice_both_iSub(reconsOnly == 1, :); 
+        choice_obj_firstWin_col = reshape(choice_obj_firstWin', [size(choice_obj_firstWin, 1) * 5, 1]);
+        choice_loc_firstWin_col = reshape(choice_loc_firstWin', [size(choice_loc_firstWin, 1) * 5, 1]);
+        choice_rec_firstWin_col = reshape(choice_rec_firstWin', [size(choice_rec_firstWin, 1) * 5, 1]);
+        choice_firstWin = [choice_obj_firstWin_col; choice_loc_firstWin_col; choice_rec_firstWin_col];
+        nTrial_obj = length(choice_obj_firstWin_col);
+        nTrial_loc = length(choice_loc_firstWin_col);
+        nTrial_rec = length(choice_rec_firstWin_col);
+
+        choice_between_trials_iSub = [ones(length(choice_firstWin), 1), .... % label the reports in the first reporting window
+                                      [zeros(nTrial_obj, 1); ones(nTrial_loc, 1); repmat(2, nTrial_rec, 1)], ...
+                                      [trial_no_obj_firstWin_col; trial_no_loc_firstWin_col; trial_no_rec_firstWin_col], ...
+                                       choice_firstWin];
+
+        %%% ----------Label age group: 0-YA, 1-OA----------
+        groupType_col = repmat((iGrp - 1), [size(choice_within_trials_iSub, 1) + size(choice_between_trials_iSub, 1), 1]);
+
+        %%% ----------Label participant index----------
+        subj_col = repmat(iSub - 1, [size(choice_within_trials_iSub, 1) + size(choice_between_trials_iSub, 1), 1]);
+
+        %%% ----------Integrate the whole data set----------
+        choice_within_between_trials_iSub = [groupType_col, subj_col, ...
+                                             [choice_within_trials_iSub; choice_between_trials_iSub]];
+
+        choice_within_between_trials_subj = [choice_within_between_trials_subj; choice_within_between_trials_iSub];
+
+        %% 3. Memory drop in Figure 2C (figure plot in SI)
         % added by rxj @ 02/01/2024
-        % ------ (1) Memory drop based on all trials ------
         if iGrp == 2 % older group
+            % ------ (1) Memory drop based on all trials ------
             acc_trial_col = (squeeze(acc_trial_subj(iSub, [1, 2, 3], 1 : nEpi)))'; % nEpi * 3 meas
             % ----------calculate accuracy change relative to the younger----------
             acc_trial_col(:, 1) = (acc_trial_col(:, 1) -  mean_young(1)) ./ mean_young(1);
@@ -696,20 +767,112 @@ for iGrp = 1 : nGroup %% younger and older adults
                 trlNo_col  = [trlNo_col; trlNo_iM];
                 repOrd_col = [repOrd_col; repOrd_iM];
             end
-            group_Col = repmat(iGrp - 1, length(acc_col), 1);
-            subj_Col  = repmat(iSub - 1, length(acc_col), 1);
-            acc_change_conds_subj = [acc_change_conds_subj; group_Col, subj_Col, trlNo_col, meas_col, acc_col, trlCor_col, repOrd_col];
+            group_Col  = repmat(iGrp - 1, length(acc_col), 1);
+            subj_Col   = repmat(iSub - 1, length(acc_col), 1);
+            acc_change_conds_subj = [acc_change_conds_subj; ...
+                                     group_Col, subj_Col, trlNo_col, meas_col, ...
+                                     acc_col, repOrd_col];
+
+
+            % ------ (2) Memory drop based only on three-retrieval trials ------
+            % To make this consistent with Exp1, the memory drop analysis only
+            % uses the data from !!!!!! three-retrieval-trials !!!!!!
+            acc_trial_all = (squeeze(acc_trial_subj(iSub, [1, 2, 3], 1 : nEpi)))'; % nEpi * 3 meas
+
+            acc_trial_threeRetr_col = acc_trial_all(reconsOnly == 0, :); % only three-retrieval trials: nEpi * 3 meas
+            % ----------calculate accuracy change relative to the younger----------
+            acc_trial_threeRetr_col(:, 1) = (acc_trial_threeRetr_col(:, 1) -  mean_young_threeRetr(1)) ./ mean_young_threeRetr(1);
+            acc_trial_threeRetr_col(:, 2) = (acc_trial_threeRetr_col(:, 2) -  mean_young_threeRetr(2)) ./ mean_young_threeRetr(2);
+            acc_trial_threeRetr_col(:, 3) = (acc_trial_threeRetr_col(:, 3) -  mean_young_threeRetr(3)) ./ mean_young_threeRetr(3);
+            % ---- trial number ----
+            trial_no_total   = (1 : 1 : nEpi)';
+            trial_no_partial = trial_no_total(reconsOnly == 0);
+            % ---- testOrd in three-retrieval trials ----
+            testOrd_partial  = testOrd(reconsOnly == 0);
+
+            acc_threeRetr_col    = []; %% accuracy
+            trlCor_threeRetr_col = []; %% fully correct: 1-yes, 0-no
+            meas_threeRetr_col   = []; %% 3 measures
+            trlNo_threeRetr_col  = [];
+            repOrd_threeRetr_col = []; %% report orders after the encoding stage: 0-content+position+recon, 1-position+content+recon, 2-recon only
+            for iM = 1 : 3 %% 3 measures: content, position and reconstruction
+                acc_iM = acc_trial_threeRetr_col(:, iM);
+                trlNo_iM = trial_no_partial;
+                trlNo_iM(isnan(acc_iM)) = [];
+                repOrd_iM = testOrd_partial;
+                repOrd_iM(isnan(acc_iM)) = []; % for the reconstruction only trials, the value in content and position reports will be NAN
+                if iM == 1    % content report
+                    repOrd_iM(repOrd_iM == 1) = 2; % second report after the encoding stage
+                    repOrd_iM(repOrd_iM == 0) = 1; % first report after the encoding stage
+                elseif iM == 2 % position report
+                    repOrd_iM(repOrd_iM == 1) = 1; % first report after the encoding stage
+                    repOrd_iM(repOrd_iM == 0) = 2; % second report after the encoding stage
+                elseif iM == 3 % reconstruction report
+                    repOrd_iM(:) = 3; % third report after the encoding stage: (1) con+pos+recons; (2) pos+con+recons;
+                end
+                acc_iM(isnan(acc_iM)) = [];
+                acc_threeRetr_col   = [acc_threeRetr_col; acc_iM];
+                trlCor_iM = acc_iM;
+                trlCor_iM(trlCor_iM ~= 1) = 0;
+                trlCor_threeRetr_col = [trlCor_threeRetr_col; trlCor_iM];
+                meas_threeRetr_col   = [meas_threeRetr_col; repmat(iM - 1, length(acc_iM), 1)];
+                trlNo_threeRetr_col  = [trlNo_threeRetr_col; trlNo_iM];
+                repOrd_threeRetr_col = [repOrd_threeRetr_col; repOrd_iM];
+            end
+            group_threeRetr_Col = repmat(iGrp - 1, length(acc_threeRetr_col), 1);
+            subj_threeRetr_Col  = repmat(iSub - 1, length(acc_threeRetr_col), 1);
+            acc_change_conds_threeRetr_subj = [acc_change_conds_threeRetr_subj; ...
+                                               group_threeRetr_Col, subj_threeRetr_Col, trlNo_threeRetr_col, meas_threeRetr_col, ...
+                                               acc_threeRetr_col, repOrd_threeRetr_col];
+
+
+            % ------ (3) Memory drop based on the partial retrievals in the
+            % three-retrieval trials and full retrievals from the
+            % retrieval-only trials (firstWin) ------
+            % acc_trial_all = (squeeze(acc_trial_subj(iSub, [1, 2, 3], 1 : nEpi)))'; % nEpi * 3 meas
+            acc_trial_firstWin_obj = acc_trial_all(reconsOnly == 0 & testOrd == 0, 1); % object retrieval in the first reporting window
+            acc_trial_firstWin_loc = acc_trial_all(reconsOnly == 0 & testOrd == 1, 2); % location retrieval in the first reporting window
+            acc_trial_firstWin_rec = acc_trial_all(reconsOnly == 1, 3); % full retrieval in the first reporting window
+            acc_trial_firstWin_col = nan(max([length(acc_trial_firstWin_obj), length(acc_trial_firstWin_loc), length(acc_trial_firstWin_rec)]), 3);
+            acc_trial_firstWin_col(1 : length(acc_trial_firstWin_obj), 1) = (acc_trial_firstWin_obj -  mean_young_firstWin(1)) ./ mean_young_firstWin(1);
+            acc_trial_firstWin_col(1 : length(acc_trial_firstWin_loc), 2) = (acc_trial_firstWin_loc -  mean_young_firstWin(2)) ./ mean_young_firstWin(2);
+            acc_trial_firstWin_col(1 : length(acc_trial_firstWin_rec), 3) = (acc_trial_firstWin_rec -  mean_young_firstWin(3)) ./ mean_young_firstWin(3);
+            % ---- trial number ----
+            trial_no_obj_firstWin = trial_no_total(reconsOnly == 0 & testOrd == 0);
+            trial_no_loc_firstWin = trial_no_total(reconsOnly == 0 & testOrd == 1);
+            trial_no_rec_firstWin = trial_no_total(reconsOnly == 1);
+
+            acc_firstWin_col    = []; %% accuracy
+            trlCor_firstWin_col = []; %% fully correct: 1-yes, 0-no
+            meas_firstWin_col   = []; %% 3 measures
+            trlNo_firstWin_col  = [];
+            repOrd_firstWin_col = []; %% report orders after the encoding stage: 0-content+position+recon, 1-position+content+recon, 2-recon only
+            for iM = 1 : 3 %% 3 measures: content, position and reconstruction
+                acc_iM = acc_trial_firstWin_col(:, iM);
+                if iM == 1    % content report
+                    trlNo_iM = trial_no_obj_firstWin;
+                elseif iM == 2 % position report
+                    trlNo_iM = trial_no_loc_firstWin;
+                elseif iM == 3 % reconstruction report
+                    trlNo_iM = trial_no_rec_firstWin;
+                end
+                repOrd_iM = ones(length(trlNo_iM), 1);
+                acc_iM(isnan(acc_iM)) = [];
+                acc_firstWin_col = [acc_firstWin_col; acc_iM];
+                trlCor_iM = acc_iM;
+                trlCor_iM(trlCor_iM ~= 1) = 0;
+                trlCor_firstWin_col = [trlCor_firstWin_col; trlCor_iM];
+                meas_firstWin_col   = [meas_firstWin_col; repmat(iM - 1, length(acc_iM), 1)];
+                trlNo_firstWin_col  = [trlNo_firstWin_col; trlNo_iM];
+                repOrd_firstWin_col = [repOrd_firstWin_col; repOrd_iM];
+            end
+            group_firstWin_Col = repmat(iGrp - 1, length(acc_firstWin_col), 1);
+            subj_firstWin_Col  = repmat(iSub - 1, length(acc_firstWin_col), 1);
+            acc_change_conds_firstWin_subj = [acc_change_conds_firstWin_subj; ...
+                                              group_firstWin_Col, subj_firstWin_Col, trlNo_firstWin_col, meas_firstWin_col, ...
+                                              acc_firstWin_col, repOrd_firstWin_col];
+
         end
-
-        % ------ (2) Memory drop based only on three-retrieval trials ------
-        % To make this consistent with Exp1, the memory drop analysis only
-        % uses the data from !!!!!! three-retrieval-trials !!!!!!
-
-   
-
-        % ------ (3) Memory drop based on the partial retrievals in the
-        % three-retrieval trials and full retrievals from  the
-        % retrieval-only trials ------
 
         %% ----------Transition accuracy and binding accuracy----------
         conTrue_threeRep  = conTrue_col(reconsOnly == 0);
@@ -971,7 +1134,10 @@ for iGrp = 1 : nGroup %% younger and older adults
     acc_dim_group{iGrp}          = acc_dim_subj;
     acc_lmm_group          = [acc_lmm_group; acc_lmm_subj];
     choice_lmm_group       = [choice_lmm_group; choice_lmm_subj];
-    acc_change_conds_group = [acc_change_conds_group; acc_change_conds_subj];
+    choice_within_between_trials_group = [choice_within_between_trials_group; choice_within_between_trials_subj];
+    acc_change_conds_group = [acc_change_conds_group; acc_change_conds_subj]; % memory drop: all trials together
+    acc_change_conds_threeRetr_group = [acc_change_conds_threeRetr_group; acc_change_conds_threeRetr_subj]; % memory drop: three-retrieval tests
+    acc_change_conds_firstWin_group  = [acc_change_conds_firstWin_group; acc_change_conds_firstWin_subj]; % memory drop: retrieval tests in the first reporting window
 
     % ----binding evidence----
     binds_conPctr_group{1, iGrp} = binds_conPctr_marg_subj;
@@ -990,10 +1156,37 @@ for iGrp = 1 : nGroup %% younger and older adults
 
     %% calculate the mean across subjects, for each report
     if iGrp == 1 % younger group
+        % ------ all trials together ------
         mean_young = nan(1, 3);
         mean_young(1) = nanmean(acc_group{1}(:, 1)); % content
         mean_young(2) = nanmean(acc_group{1}(:, 2)); % position
         mean_young(3) = nanmean(acc_group{1}(:, 3)); % reconstruction
+
+        % ------ three-retrieval trials ------
+        %%% ------The non-reconsOnly trials: 3 consecutive reports (same as Experiment 1)------
+        % ----content----
+        % acc_subj(iSub, 9)  = nanmean(acc_trial_con_iSub);
+        % ----position----
+        % acc_subj(iSub, 10) = nanmean(acc_trial_pos_iSub);
+        % ----reconstruction----
+        % acc_subj(iSub, 11) = nanmean(acc_trial_rec_iSub);
+        
+        mean_young_threeRetr = nan(1, 3);
+        mean_young_threeRetr(1) = nanmean(acc_subj(:, 9));
+        mean_young_threeRetr(2) = nanmean(acc_subj(:, 10));
+        mean_young_threeRetr(3) = nanmean(acc_subj(:, 11));
+
+        % ------ partial retrievals in the three-retrieval trials (firstWin) + full retrieval from retrieval-only trials (firstWin)------
+        % content-first, position-first, and recons-only trials
+        % acc_subj_orderUp(iSub, 1, 1) = nanmean(acc_marginal(trial_marginal == 0, 1));
+        % acc_subj_orderUp(iSub, 1, 2) = nanmean(acc_marginal(trial_marginal == 1, 2));
+        % acc_subj_orderUp(iSub, 1, 3) = nanmean(acc_reconsOnly(:, 3));
+
+        mean_young_firstWin = nan(1, 3);
+        mean_young_firstWin(1) = nanmean(acc_subj_orderUp(:, 1, 1));
+        mean_young_firstWin(2) = nanmean(acc_subj_orderUp(:, 1, 2));
+        mean_young_firstWin(3) = nanmean(acc_subj_orderUp(:, 1, 3));
+
     end
 
     %% ----------Integrate the following measures into one variable and use it for the subsequent correlation analysis with model parameters----------
@@ -1020,15 +1213,29 @@ for iGrp = 1 : nGroup %% younger and older adults
     allMeas_inOne(:, 8) = nanmean([binds_conPctr_marg_subj(:, 1, 2) - binds_conPctr_marg_subj(:, 2, 2), ...
                                    binds_conPctr_marg_subj(:, 3, 2) - binds_conPctr_marg_subj(:, 4, 2)], 2);
     allMeas_inOne_group{iGrp} = allMeas_inOne;
+
 end
 %% save data for Figure 2C in the FlexibleBinding paper
 FBdata_folder = [bhvDataDir, '/FlexibleBindingPaper-Data/']; % flexible binding data folder
 
-%%
+%% save the descriptive data
 save([FBdata_folder, 'Fig2C_acc_group_Exp2.mat'], 'acc_group');
 save([FBdata_folder, 'Fig2C_acc_subj_orderUP_group_Exp2.mat'], 'acc_subj_orderUP_group');
 save([FBdata_folder, 'Fig2D_FA_lure_group_Exp2.mat'], 'FA_lure_group');
 save([FBdata_folder, 'Fig2GHI_binds_conPctr_group_Exp2.mat'], 'binds_conPctr_group');
+
+%% save the data for statistical test in Figure 2C
+% ------ Memory gradient examination: 1) within-trials based on
+% three-retrieval test and 2) between-trials based on retrievals in the
+% first retrieval window
+save([FBdata_folder, 'Fig2C_choice_within_between_trials_group_stats_Exp2.mat'], 'choice_within_between_trials_group');
+
+% ------ Memory drop (YA relative to OA): 1) all trials; 2) three-retrieval
+% test trials; 3) three types of retrievals in the first retrieval window
+% ------
+save([FBdata_folder, 'Fig2C_acc_change_conds_group_stats_Exp2.mat'], 'acc_change_conds_group');
+save([FBdata_folder, 'Fig2C_acc_change_conds_threeRetr_group_stats_Exp2.mat'], 'acc_change_conds_threeRetr_group');
+save([FBdata_folder, 'Fig2C_acc_change_conds_firstWin_group_stats_Exp2.mat'], 'acc_change_conds_firstWin_group');
 
 %% reorganize the lure effect data for the subsequent statistical tests
 % added by XR @ Dec 4th 2025

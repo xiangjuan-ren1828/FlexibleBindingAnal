@@ -560,7 +560,7 @@ for iGrp = 1 : nGroup %% younger and older adults
             acc_change_lmm_subj = [acc_change_lmm_subj; group_Col, subj_Col, trlNo_col, meas_col, acc_col, trlCor_col];
         end
         %     if iGrp == 2 % older group: save the data
-        %         save([bhvDataDir, '/acc_change_lmm_subj_exp1.mat'], 'acc_change_lmm_subj');
+        %         save([FBdata_folder, 'acc_change_lmm_subj_exp1.mat'], 'acc_change_lmm_subj');
         %     end
 
         %% Binding evidence: check if the correct/incorrect in the different dimension influence the accuracy in the dimension
@@ -873,11 +873,17 @@ end
 %% save data for Figure 2A, 2B, 2D and 2GHI in the FlexibleBinding paper
 FBdata_folder = [bhvDataDir, '/FlexibleBindingPaper-Data/']; % flexible binding data folder
 
-%%
+%% Descriptive data
 save([FBdata_folder, 'Fig2A_acc_blc_group_Exp1.mat'], 'acc_blc_group');
 save([FBdata_folder, 'Fig2B_acc_group_Exp1.mat'], 'acc_group');
 save([FBdata_folder, 'Fig2D_FA_lure_group_Exp1.mat'], 'FA_lure_group');
 save([FBdata_folder, 'Fig2GHI_binds_conPctr_group_Exp1.mat'], 'binds_conPctr_group');
+
+%% Figure 2A and 2B: statistics
+% ------ raw data ------
+% save([FBdata_folder, 'resp_glmm_group_exp1.mat'], 'resp_glmm_group');
+% ------ accuracy change ------
+% see above lines at 562-564
 
 %% Figure 2D statistics: reorganize the lure effect data for the subsequent statistical tests
 % added by XR @ Dec 4th 2025
