@@ -1349,7 +1349,7 @@ for iGrp = 1 : nGroup % YA and OA
         (transAcc_plot_iGrp_temp_avg(:, 3) -  transAcc_plot_iGrp_temp_avg(:, 4)) ./ transAcc_plot_iGrp_temp_avg(:, 3)
         ];
 end
-%%% save data for Figure 2E in the FlexibleBinding paper
+%% save data for Figure 2E in the FlexibleBinding paper
 save([FBdata_folder, 'Fig2E_transAcc_plot_group_Exp2.mat'], 'transAcc_plot_group');
 save([FBdata_folder, 'Fig2E_transAcc_plot_mjAvg_group_Exp2.mat'], 'transAcc_plot_mjAvg_group');
 

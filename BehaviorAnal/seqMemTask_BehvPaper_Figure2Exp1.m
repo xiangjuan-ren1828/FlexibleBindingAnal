@@ -162,7 +162,8 @@ acc_lmm_group = [];
 resp_glmm_group = []; % response (0/1) in each slot
 
 % ------Binding related calculation------
-binds_conPctr_group         = cell(2, nGroup); % 2: marginal and reconstruction reports
+binds_conPctr_group       = cell(2, nGroup); % 2: marginal and reconstruction reports
+binds_conPctr_group_order = cell(2, nGroup); % for partial retrieval, separating object-location and location-object trials
 % ------Transition evidence------
 transAcc_count_group            = cell(2, nGroup); % 2: marginal and joint
 transAcc_count_firstHalf_group  = cell(2, nGroup);
@@ -770,6 +771,11 @@ for iGrp = 1 : nGroup %% younger and older adults
                 end
             end
         end
+
+        %% Binding evidence: by splitting object-location and location-object trials
+        
+
+
 
         %% Calculate the lure effect from the distractor
         % item and location in partial and full retrieval separately
