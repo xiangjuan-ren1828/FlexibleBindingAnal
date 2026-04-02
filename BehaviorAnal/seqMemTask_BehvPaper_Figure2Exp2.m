@@ -138,7 +138,9 @@ acc_change_conds_threeRetr_group = []; % memory drop: three-retrieval tests
 acc_change_conds_firstWin_group  = []; % memory drop: retrieval tests in the first reporting window
 
 % ------Binding related calculation------
-binds_conPctr_group = cell(2, nGroup); % 2: marginal and reconstruction reports
+binds_conPctr_group       = cell(2, nGroup); % 2: marginal and reconstruction reports
+binds_conPctr_group_order = cell(2, nGroup); % 2: for partial retrieval, separating object-location and location-object trials
+
 % ------Transition evidence------
 transAcc_count_group            = cell(2, nGroup); % 2: marginal and joint
 transAcc_count_firstHalf_group  = cell(2, nGroup);
@@ -198,7 +200,11 @@ for iGrp = 1 : nGroup %% younger and older adults
 
     % ------Binidng related measures------
     binds_conPctr_marg_subj = nan(subLen, 4, 4); % the 2nd 2: (1-2) proportion: item on position and position on item; (3-4) detected response numbers
-    binds_conPctr_join_subj = nan(subLen, 4, 4); 
+    binds_conPctr_join_subj = nan(subLen, 4, 4);
+    % ======Separate retrievals: object-location or location-object
+    binds_conPctr_margIP_subj = nan(subLen, 4, 4); % the 2nd 2: (1-2) proportion: item on position and position on item; (3-4) detected response numbers
+    binds_conPctr_margPI_subj = nan(subLen, 4, 4);
+
     % ------Transition evidence------
     transAcc_count_marg_subj = nan(subLen, 4, 2); % 4: 4 different counts; 2: item and location
     transAcc_count_join_subj = nan(subLen, 4, 2);
@@ -1080,6 +1086,74 @@ for iGrp = 1 : nGroup %% younger and older adults
             end
         end
 
+        %% Binding evidence: by splitting object-location and location-object trials
+        testOrd_threeRetr = testOrd(~reconsOnly);
+        for ij = 1 : 2 % 2 types of report trials: 1) item-pos; 2) pos-item;
+            if ij == 1     % retrieval order: object-location
+                slotCorr_con = slotCorr_marg_con(testOrd_threeRetr == 0, :);
+                slotCorr_pos = slotCorr_marg_pos(testOrd_threeRetr == 0, :);
+            elseif ij == 2 % retriveal order: location-object
+                slotCorr_con = slotCorr_marg_con(testOrd_threeRetr == 1, :);
+                slotCorr_pos = slotCorr_marg_pos(testOrd_threeRetr == 1, :);
+            end
+            binds_conPctr_counts = cell(2, 4); % 2: (Item|Pos) and (Pos|Item)
+            for ijT = 1 : size(slotCorr_pos, 1)
+                slotCorr_con_ij = slotCorr_con(ijT, :);
+                slotCorr_pos_ij = slotCorr_pos(ijT, :);
+                % +++++++++++++++++ (Item|Pos) +++++++++++++++++
+                for iTr = 2 : nTrans
+                    if slotCorr_con_ij(iTr - 1) == 1 && slotCorr_pos_ij(iTr) == 1
+                        binds_conPctr_counts{1, 1} = [binds_conPctr_counts{1, 1}; slotCorr_con_ij(iTr)];
+
+                    elseif slotCorr_con_ij(iTr - 1) == 1 && slotCorr_pos_ij(iTr) == 0
+                        binds_conPctr_counts{1, 2} = [binds_conPctr_counts{1, 2}; slotCorr_con_ij(iTr)];
+
+                    elseif slotCorr_con_ij(iTr - 1) == 0 && slotCorr_pos_ij(iTr) == 1
+                        binds_conPctr_counts{1, 3} = [binds_conPctr_counts{1, 3}; slotCorr_con_ij(iTr)];
+
+                    elseif slotCorr_con_ij(iTr - 1) == 0 && slotCorr_pos_ij(iTr) == 0
+                        binds_conPctr_counts{1, 4} = [binds_conPctr_counts{1, 4}; slotCorr_con_ij(iTr)];
+
+                    end
+                end
+                % +++++++++++++++++ (Pos|Item) +++++++++++++++++
+                for iTr = 2 : nTrans
+                    if slotCorr_pos_ij(iTr - 1) == 1 && slotCorr_con_ij(iTr) == 1
+                        binds_conPctr_counts{2, 1} = [binds_conPctr_counts{2, 1}; slotCorr_pos_ij(iTr)];
+
+                    elseif slotCorr_pos_ij(iTr - 1) == 1 && slotCorr_con_ij(iTr) == 0
+                        binds_conPctr_counts{2, 2} = [binds_conPctr_counts{2, 2}; slotCorr_pos_ij(iTr)];
+
+                    elseif slotCorr_pos_ij(iTr - 1) == 0 && slotCorr_con_ij(iTr) == 1
+                        binds_conPctr_counts{2, 3} = [binds_conPctr_counts{2, 3}; slotCorr_pos_ij(iTr)];
+
+                    elseif slotCorr_pos_ij(iTr - 1) == 0 && slotCorr_con_ij(iTr) == 0
+                        binds_conPctr_counts{2, 4} = [binds_conPctr_counts{2, 4}; slotCorr_pos_ij(iTr)];
+                    end
+                end
+            end
+            % ------Calculate the proportion of correctness------
+            if ij == 1    % object-location retrieval trials
+                for iC = 1 : 4
+                    % ------Proportion------
+                    binds_conPctr_margIP_subj(iSub, iC, 1) = length(find(binds_conPctr_counts{1, iC} == 1)) ./ length(binds_conPctr_counts{1, iC});
+                    binds_conPctr_margIP_subj(iSub, iC, 2) = length(find(binds_conPctr_counts{2, iC} == 1)) ./ length(binds_conPctr_counts{2, iC});
+                    % ------Trial numbers------
+                    binds_conPctr_margIP_subj(iSub, iC, 3) = length(binds_conPctr_counts{1, iC});
+                    binds_conPctr_margIP_subj(iSub, iC, 4) = length(binds_conPctr_counts{2, iC});
+                end
+            elseif ij == 2 % location-object retrieval trials
+                for iC = 1 : 4
+                    % ------Proportion------
+                    binds_conPctr_margPI_subj(iSub, iC, 1) = length(find(binds_conPctr_counts{1, iC} == 1)) ./ length(binds_conPctr_counts{1, iC});
+                    binds_conPctr_margPI_subj(iSub, iC, 2) = length(find(binds_conPctr_counts{2, iC} == 1)) ./ length(binds_conPctr_counts{2, iC});
+                    % ------Trial numbers------
+                    binds_conPctr_margPI_subj(iSub, iC, 3) = length(binds_conPctr_counts{1, iC});
+                    binds_conPctr_margPI_subj(iSub, iC, 4) = length(binds_conPctr_counts{2, iC});
+                end
+            end
+        end
+        
         %% Calculate the lure effect from the distractor
         % item and location in partial and full retrieval separately
         conLure  = nan(nEpi, 1);
@@ -1142,6 +1216,9 @@ for iGrp = 1 : nGroup %% younger and older adults
     % ----binding evidence----
     binds_conPctr_group{1, iGrp} = binds_conPctr_marg_subj;
     binds_conPctr_group{2, iGrp} = binds_conPctr_join_subj;
+    % ----binding evidence: separating object-location and location-object retrievals----
+    binds_conPctr_group_order{1, iGrp} = binds_conPctr_margIP_subj;
+    binds_conPctr_group_order{2, iGrp} = binds_conPctr_margPI_subj;
 
     % ----transition evidence----
     transAcc_count_group{1, iGrp} = transAcc_count_marg_subj;
@@ -1625,12 +1702,109 @@ elseif figKey == 1
 end
 box off;
 
-%% Figure 2C (right panel): age-difference for each retrieval in Experiment 2 (replication of Figure 2B right panel)
-% two datasets: 1) all trials; 2) only three-retrieval trials
-acc_change_comp = nan(size(acc_group_comp{2, 1}, 1), 3); % content, position and reconstruction
-for iC = 1 : 3 % content, position and both-pre
-    acc_change_comp(:, iC) = (acc_group_comp{2, 1}(:, iC) - nanmean(acc_group_comp{1, 1}(:, iC))) ./ nanmean(acc_group_comp{1, 1}(:, iC));
+%% Supplementary figure (Figure S1A): learning curves 
+%%% ---------Replication of Figure 2A in Exp. 1. Block-wise learning curves---------
+color_Grp_curve = 0.5 * colorGrp([1, 4, 7], :) + 0.5 * [1, 1, 1];
+blockLines = [2.5, 4.5, 6.5, 8.5, 10.5, 12.5, 14.5, 16.5]; % using vertical line to label the block
+for iGrp = 1 : nGroup %% younger and older adults
+    acc_blc_iGrp = acc_blc_group{iGrp}(:, 1 : 2*8, :);
+    [acc_avg, acc_sem] = Mean_and_Se(acc_blc_iGrp, 1);
+    acc_avg = squeeze(acc_avg); % (nBlock)*2 * 3; % 3: (1) content report; (2) position report; (3) both report;
+    acc_sem = squeeze(acc_sem);
+    figure('Position', [100 100 300 150]), clf;
+    for iP = 1 : 3 % the first 3 rows: content, position and both
+        errorbar(1 : 1 : (nBlock*2), acc_avg(1 : 1 : (nBlock*2), iP), acc_sem(1 : 1 : (nBlock*2), iP), 'Color', color_Grp_curve(iP, :), 'LineStyle', '-', 'LineWidth', 1); hold on;
+        plot(1 : 1 : (nBlock*2), acc_avg(1 : 1 : (nBlock*2), iP), 'Marker', '.', 'MarkerSize', 15, 'Color', color_Grp_curve(iP, :), 'LineStyle', 'none'); hold on;
+    end
+    ylim([0, 1]);
+    xlim([0, ((nBlock)*2)+1]);
+    for iBlc = 1 : length(blockLines)
+        plot([blockLines(iBlc), blockLines(iBlc)], ylim, 'Color', [0.6, 0.6, 0.6], 'LineStyle', ':', 'LineWidth', 0.4); hold on;
+    end
+    %plot(xlim, [1/(nTrans+nDtr), 1/(nTrans+nDtr)], 'k--', 'LineWidth', 0.6); hold on;
+    set(gca, 'LineWidth', 0.8);
+    set(gca, 'FontSize', 10, 'FontWeight', 'bold', 'FontName', 'Arial');
+    set(gca, 'XTick', blockLines, 'XTickLabel', '');
+    set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', '');
+    box off;
+    %%% statistical test
+    statMat = nan(nBlock*2, 2);
+    for iB = 1 : (nBlock*2)
+        [h, p, ci, stats] = ttest(acc_blc_iGrp(:, iB, 1), acc_blc_iGrp(:, iB, 2));
+        statMat(iB, :) = [p, stats.tstat];
+    end
 end
+
+%% Figure S1B, left panel: memory gradient across 3 retrievals based on all trials
+color_iGrp = 0.5 * colorGrp([1, 4, 7], :) + 0.5 * [1, 1, 1];
+acc_group_allTrials = cell(1, 2);
+for iA = 1 : 2 % YA and OA group
+    acc_group_allTrials{iA} = acc_group{iA}(:, [1,2,3]);
+end
+barPos = [1, 1.5, 2; % younger: content, position, reconstruction
+          3, 3.5, 4]; % older
+x_rand_group = cell(2, 3);
+for iA = 1 : 2 % YA and OA group
+    for iC = 1 : 3 % content, position and both-pre
+        barPos_i = barPos(iA, iC);
+        acc_iGrp = acc_group_allTrials{iA}(:, iC);
+        x_rand_group{iA, iC} = unifrnd(barPos_i - 0.1, barPos_i + 0.1, length(acc_iGrp), 1);
+    end
+end
+
+figKey = 1;
+if figKey == 0
+    barLineWid = 2;
+    errLineWid = 3;
+    refLineWid = 1;
+elseif figKey == 1
+    barLineWid = 1;
+    errLineWid = 2;
+    refLineWid = 0.5;
+end
+figure('Position', [100 100 300 150]), clf;
+for iGrp = 1 : nGroup 
+    %color_Grp = colorSets([iGrp, iGrp+2, iGrp+4], :);
+    for iC = 1 : 3 % content, position and both-pre
+        barPos_i = barPos(iGrp, iC);
+        acc_iGrp = acc_group_allTrials{iGrp}(:, iC);
+        [acc_avg, acc_sem] = Mean_and_Se(acc_iGrp, 1);
+        b = bar(barPos(iGrp, iC), acc_avg, 0.45, 'LineStyle', '-', 'LineWidth', barLineWid); hold on;
+        b.FaceColor = color_iGrp(iC, :);
+        x_rand = x_rand_group{iGrp, iC};
+        plot(x_rand, acc_iGrp, 'Marker', 'o', 'MarkerSize', 6, 'MarkerEdgeColor', [0, 0, 0], 'MarkerFaceColor', [0.9, 0.9, 0.9], 'LineStyle', 'none'); hold on;
+        errorbar(barPos(iGrp, iC), acc_avg, acc_sem, 'Color', 'k', 'LineStyle', 'none', 'LineWidth', errLineWid); hold on;
+    end
+end
+xlim([0.5, 4.5]);
+ylim([0, 1]);
+if figKey == 0
+    % ------For presentation------
+    set(gca, 'LineWidth', 2);
+    set(gca, 'FontSize', 15, 'FontWeight', 'bold', 'FontName', 'Arial');
+    set(gca, 'XTick', '', 'XTickLabel', '');
+    set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', 0 : 0.5 : 1); 
+elseif figKey == 1
+    % ------For Adobe Illustrator------
+    set(gca, 'LineWidth', 0.8);
+    set(gca, 'FontSize', 10, 'FontWeight', 'bold', 'FontName', 'Arial');
+    set(gca, 'XTick', '', 'XTickLabel', '');
+    set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', {'', '', ''});
+end
+box off;
+
+
+%% Figure S1B, right panel: age-difference for each retrieval in Experiment 2 (replication of Figure 2B right panel)
+% two datasets: 1) all trials; 2) only three-retrieval trials
+% acc_change_comp = nan(size(acc_group_comp{2, 1}, 1), 3); % content, position and reconstruction
+% for iC = 1 : 3 % content, position and both-pre
+%     acc_change_comp(:, iC) = (acc_group_comp{2, 1}(:, iC) - nanmean(acc_group_comp{1, 1}(:, iC))) ./ nanmean(acc_group_comp{1, 1}(:, iC));
+% end
+acc_change_comp = nan(length(subjList_old), 3); % content, position and reconstruction
+for iC = 1 : 3 % content, position and both-pre
+    acc_change_comp(:, iC) = (acc_group_allTrials{2}(:, iC) - nanmean(acc_group_allTrials{1}(:, iC))) ./ nanmean(acc_group_allTrials{1}(:, iC));
+end
+
 color_iGrp = 0.5 * colorGrp([1, 4, 7], :) + 0.5 * [1, 1, 1];
 figKey = 1;
 if figKey == 0
@@ -1662,7 +1836,6 @@ elseif figKey == 1
     set(gca, 'YTick', -0.6 : 0.2 : 0, 'YTickLabel', {'', '', ''}); 
 end
 box off;
-
 
 %% ---------- Figure 2D in Experiment 2 (replication in Experiment 1); lure effect ----------
 figKey = 1;  % 0: figure for presentation; 1: figure for AI.
@@ -1869,6 +2042,95 @@ for iGrp = 1 : nGroup % YA and OA
     end
     bindScore_grandAvg_iGrp = bindScore_grandAvg{1, iGrp};
     [bindScore_avg, bindScore_sem] = Mean_and_Se(bindScore_grandAvg_iGrp)
+end
+
+%% The SI for Figure 2G (Figure S3): splitting trials into object-location and location-object retrieval orders
+% (1) object-location: examining the influence of location sequence on
+% object retrieval in the first retrieval window, and the influence of
+% object sequence on location retrieval in the second retrieval window
+% (2) location-object: reversed as object-location
+figKey = 1;  % 0: figure for presentation; 1: figure for AI.
+if figKey == 0
+    barLineWid = 2;
+    errLineWid = 3;
+    refLineWid = 1;
+elseif figKey == 1
+    barLineWid = 1;
+    errLineWid = 1.5; %2;
+    refLineWid = 0.5;
+end
+barPos = [1, 1.7; 2.0, 2.7];
+binds_dataAnal = binds_conPctr_group_order; % binds_conPctr_group_order = cell(2, nGroup); % 2: for partial retrieval, separating object-location and location-object trials
+
+for iGrp = 1 : nGroup
+    if iGrp == 1
+        disp('------YA------')
+    elseif iGrp == 2
+        disp('------OA------')
+    end
+    %%% ------ Average across different dimension ------
+    %%% ---- Don't average across the two directions: obj|loc and loc|obj ----
+    %%% ---- object-location retrieval ----
+    binds_dataAnal_IP = binds_dataAnal{1, iGrp}(:, :, 1 : 2); % subj * 4 * 2: 2-obj|loc and loc|obj
+    binds_dataAnal_IP = [squeeze(nanmean(binds_dataAnal_IP(:, [1, 3], :), 2)), squeeze(nanmean(binds_dataAnal_IP(:, [2, 4], :), 2))]; % 4 columns
+    % first two columns: correct vs. incorrect in obj|loc (loc not used)
+    % last two columns:  correct vs. incorrect in loc|obj
+
+    %%% ---- location-object retrieval ----
+    binds_dataAnal_PI = binds_dataAnal{2, iGrp}(:, :, 1 : 2); % subj * 4 * 2: 2-obj|loc and loc|obj
+    binds_dataAnal_PI = [squeeze(nanmean(binds_dataAnal_PI(:, [1, 3], :), 2)), squeeze(nanmean(binds_dataAnal_PI(:, [2, 4], :), 2))]; % 4 columns
+    % first two columns: correct vs. incorrect in obj|loc
+    % last two columns:  correct vs. incorrect in loc|obj (obj not used)
+
+    %%% ---- make object-location retrieval and location-object retrieval separate ----
+    binds_dataAnal_Tmp = nan(size(binds_dataAnal_IP, 1), 4, 2);
+    binds_dataAnal_Tmp(:, :, 1) = binds_dataAnal_IP; % object-location retrieval
+    binds_dataAnal_Tmp(:, :, 2) = binds_dataAnal_PI; % location-object retrieval
+
+    %%% ---- Figures for each age group (similar as Figure 2G): correct vs.
+    %%% incorrect for object-location retrievals and location-object
+    %%% retrievals ----
+
+    for ij = 1 : 2 % 1: object-location retrieval; 2: location-object retrieval
+        figure('Position', [100 100 160 120]), clf;
+        for jk = 1 : 2 % 1: obj|loc; 2: loc|obj
+            barPos_i = barPos(jk, :);
+
+            col_idx = (jk - 1) * 2 + 1 : jk * 2;
+            binds_dataAnal_ij    = binds_dataAnal_Tmp(:, col_idx, ij);
+            [tAcc_avg, tAcc_sem] = Mean_and_Se(binds_dataAnal_ij, 1);
+
+            plot(barPos_i, binds_dataAnal_ij, 'Color', [0.6, 0.6, 0.6], 'LineStyle', '-', 'LineWidth', 0.4); hold on;
+            plot(barPos_i, tAcc_avg, 'Color', [0, 0, 0], 'LineStyle', '-', 'LineWidth', errLineWid); hold on;
+
+            for jDm = 1 : 2 % 2: previous report is correct or incorrect
+                if jDm == 1
+                    colorFace_jDm = [0, 0, 0];
+                elseif jDm == 2
+                    colorFace_jDm = [1, 1, 1];
+                end
+                errorbar(barPos_i(jDm), tAcc_avg(jDm), tAcc_sem(jDm), 'Color', 'k', 'LineStyle', 'none', 'LineWidth', errLineWid); hold on;
+                plot(barPos_i(jDm), tAcc_avg(jDm), 'Marker', 'o', 'MarkerSize', 4.5, 'MarkerEdgeColor', [0, 0, 0], 'MarkerFaceColor', colorFace_jDm, 'LineStyle', '-'); hold on;
+            end
+
+        end
+        xlim([0.6, 3.1]);
+        ylim([0, 1]);
+        if figKey == 0
+            % ------For presentation------
+            set(gca, 'LineWidth', 2);
+            set(gca, 'FontSize', 15, 'FontWeight', 'bold', 'FontName', 'Arial');
+            set(gca, 'XTick', '', 'XTickLabel', '');
+            set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', 0 : 0.5 : 1);
+        elseif figKey == 1
+            % ------For Adobe Illustrator------
+            set(gca, 'LineWidth', 0.6); % 0.8
+            set(gca, 'FontSize', 10, 'FontWeight', 'bold', 'FontName', 'Arial');
+            set(gca, 'XTick', '', 'XTickLabel', '');
+            set(gca, 'YTick', 0 : 0.5 : 1, 'YTickLabel', {'', '', ''});
+        end
+        box off;
+    end
 end
 
 %% ---------- Figure 2H and 2I in Experiment 2 (replication in Experiment 1): simplying the effect for Partial retrieval vs. Full retrieval; Transition correct vs. incorrect ----------
