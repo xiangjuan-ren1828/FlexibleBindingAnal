@@ -6,17 +6,12 @@ clear
 clc
 
 %%
-addpath('tight_subplot/');
-addpath(genpath('HierarchicalCluster/'));
 addpath(genpath('Aging-SeqMemTask/'));
-% addpath(genpath('Violinplot-Matlab-master/'));
-addpath('fdr_bh');
 
 %% parameters
-folder      = '/Users/ren/Projects-NeuroCode/MyExperiment/Aging-SeqMemTask'; %'/Volumes/HierarchicalCluster';
-bhvDataDir  = [folder, '/AgingReplay-OnlineData'];
-statSaveDir = [folder, '/AgingReplay-StatAnal'];
-FBdata_folder = [bhvDataDir, '/FlexibleBindingPaper-Data/']; % flexible binding data folder
+folder     = '/Users/ren/Projects-NeuroCode/MyExperiment/Aging-SeqMemTask'; 
+bhvDataDir = [folder, '/AgingReplay-OnlineData'];
+FBdata_folder = [bhvDataDir, '/AgingStudy-FlexibleBinding/SummaryData/']; 
 
 %% Read the corresponding data from Exp1 and Exp2, saved in 
 % seqMemTask_BehvPaper_Figure2Exp1.m
@@ -141,9 +136,8 @@ for iGrp = 1 : nGroup % YA and OA
         end
     end
 end
-%%% save the FA_lure_group.mat for subsequent LMM analysis
-%save([FBdata_folder, 'Fig2D_FA_lure_overall_YAOA_stats_Exp12.mat'], 'FA_lure_overall_YAOA');
-
+%% save the FA_lure_group.mat for subsequent LMM analysis
+save([FBdata_folder, 'Fig2D_FA_lure_overall_YAOA_stats_Exp12.mat'], 'FA_lure_overall_YAOA');
 
 %% Figure 2E statistics
 %%% ------Reorganize the transAcc_plot_group.mat in order to run the statistical analysis------
@@ -199,8 +193,8 @@ for iGrp = 1 : nGroup % YA and OA
         end
     end
 end
-%%% ------save the above data for subsequent statistical tests------
-%save([FBdata_folder, 'Fig2E_transAcc_overall_group_stats_Exp12.mat'], 'transAcc_overall_group');
+%% ------save the above data for subsequent statistical tests------
+save([FBdata_folder, 'Fig2E_transAcc_overall_group_stats_Exp12.mat'], 'transAcc_overall_group');
 
 %% Figure2G and Figure 2HI statistics
 % Original script in seqMemTask_v1_anal_summary.m (Lines 2301-2390)
@@ -339,9 +333,9 @@ for iGrp = 1 : nGroup % YA and OA
         end
     end
 end
-%%% ------save the above data for subsequent statistical tests------
-% save([FBdata_folder, 'Fig2G_binds_overall_group_stats_Exp12.mat'], 'binds_overall_group');
-% save([FBdata_folder, 'Fig2HI_binds_overall_diff_group_stats_Exp12.mat'], 'binds_overall_diff_group');
+%% ------save the above data for subsequent statistical tests------
+save([FBdata_folder, 'Fig2G_binds_overall_group_stats_Exp12.mat'], 'binds_overall_group');
+save([FBdata_folder, 'Fig2HI_binds_overall_diff_group_stats_Exp12.mat'], 'binds_overall_diff_group');
 
 %% color settings
 colorSets = [0.98, 0.72, 0.69; ...
@@ -602,9 +596,6 @@ for iGrp = 1 : nGroup % YA and OA
     [bindScore_avg, bindScore_sem] = Mean_and_Se(bindScore_grandAvg_iGrp)
 end
 
-%% Correlation between age and binding score
-
-
 %% Figure 2H and 2I: Experiment 1
 %%% SeqMemTask_v1_anal_summary.m
 %%% ---------- Figure 2H and 2I in behavioral manuscript: simplying the effect in the above figures ----------
@@ -708,6 +699,7 @@ for iPlot = 1 : 2 % 1-partial vs. full; 2-preceeding correct (cost) vs. incorrec
     end
 end
 %%
+% Please download 'bonf_holm.m' from https://de.mathworks.com/matlabcentral/fileexchange/28303-bonferroni-holm-correction-for-multiple-comparisons
 disp('^^^^^^^^^^ Bonferroni-Holm corrected p: only the Figure 2H ^^^^^^^^^^ ')
 [cor_p, h] = bonf_holm(p_values_allConds(5 : end), 0.05)
 
