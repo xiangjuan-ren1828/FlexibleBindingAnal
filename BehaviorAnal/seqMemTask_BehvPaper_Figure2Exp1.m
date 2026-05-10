@@ -273,7 +273,7 @@ for iGrp = 1 : nGroup %% younger and older adults
         elseif iGrp == 2
             suffixWord = suffixWord_old_list{iSub};
         end
-            subjPath = [bhvDataDir, '/AgingStudy-FlexibleBinding/', StudyName, '-raw/'];
+        subjPath = [bhvDataDir, '/AgingStudy-FlexibleBinding/', StudyName, '-raw/'];
         if isequal(suffixWord, 'pathA')
             seqMem_subj = readtable([subjPath, subjBv, '_EpisodicMemoryTask_', subjTm, '.csv']);
         else
